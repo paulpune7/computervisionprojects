@@ -141,7 +141,7 @@ image_label_ds
 
 #Basic methods for training
 
-BATCH_SIZE = 10
+BATCH_SIZE = 8
 
 # Setting a shuffle buffer size as large as the dataset ensures that the data is
 # completely shuffled.
@@ -192,12 +192,17 @@ feature_map_batch = mobile_net(image_batch)
 print(feature_map_batch.shape)
 
 #So build a model wrapped around MobileNet, and use tf.keras.layers.GlobalAveragePooling2D to average over those space dimensions, before the output tf.keras.layers.Dense layer:
+checkpoint_path = "training_1/cp.ckpt"
+cp_callback = tf.keras.callbacks.ModelCheckpoint(checkpoint_path,
+                                                 save_weights_only=True,
+                                                 verbose=1)
 
 
 model = tf.keras.Sequential([
   mobile_net,
   tf.keras.layers.GlobalAveragePooling2D(),
-  tf.keras.layers.Dense(len(label_names))])
+  tf.keras.layers.Dense(len(label_names)),
+  ])
 
 
 logit_batch = model(image_batch).numpy()
@@ -213,6 +218,7 @@ model.compile(optimizer=tf.train.AdamOptimizer(),
               loss=tf.keras.losses.sparse_categorical_crossentropy,
               metrics=["accuracy"])
 
+
 #There are 2 trainable variables: the Dense weights and bias:
 
 
@@ -226,17 +232,18 @@ model.compile(optimizer=tf.train.AdamOptimizer(),
 
 steps_per_epoch=tf.ceil(len(all_image_paths)/BATCH_SIZE).numpy()
 #steps_per_epoch
-model.fit(ds, epochs=30, steps_per_epoch=45)
+model.fit(ds, epochs=30, steps_per_epoch=steps_per_epoch, callbacks = [cp_callback])
+model.save('datafortf.h5')
 import numpy as np
 from PIL import Image
-image = Image.open('banana.jpg')
-img_raw = tf.read_file("/home/paul/banana.jpg")
-img_tensor = tf.image.decode_image(img_raw)
-print(img_tensor.shape)
-img_final = tf.image.resize_images(img_tensor, [192, 192])
-img_final = img_final/255.0
-img_final = tf.expand_dims(img_final, axis=0)
-print(img_final.shape)
+#img_raw = tf.read_file("/home/paul/apple.jpg")
+#img_tensor = tf.image.decode_image(img_raw)
+#print(img_tensor.shape)
+#img_final = tf.image.resize_images(img_tensor, [192, 192])
+#img_final = img_final/255.0
+#img_final = tf.expand_dims(img_final, axis=0)
+#print(img_final.shape)
+img_final = load_and_preprocess_image("/home/paul/apple.jpg")
 sess = tf.Session()
 #image_array = np.array(image)[ :, :, 0:3]  # Select RGB channels only
 #image_array = preprocess_image(image_array)
