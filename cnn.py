@@ -60,7 +60,7 @@ print(img_final.shape)
 #Wrap up these up in simple functions for later
 
 def preprocess_image(image):
-  image = tf.image.decode_jpeg(image, channels=1)
+  image = tf.image.decode_jpeg(image, channels=3)
   image = tf.image.resize(image, [28, 28])
   image /= 255.0  # normalize to [0,1] range
   return image
@@ -158,18 +158,21 @@ ds = image_label_ds.apply(
   tf.data.experimental.shuffle_and_repeat(buffer_size=image_count))
 ds = ds.batch(BATCH_SIZE)
 ds = ds.prefetch(buffer_size=AUTOTUNE)
+
+
+
 #code for cnn
 from tensorflow.keras import datasets, layers, models
 model = models.Sequential()
-model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)))
+model.add(layers.Conv2D(12, (3, 3), activation='relu', input_shape=(28, 28, 3)))
 model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+#model.add(layers.Conv2D(12, (3, 3), activation='relu'))
+#model.add(layers.MaxPooling2D((2, 2)))
+#model.add(layers.Conv2D(12, (3, 3), activation='relu'))
 model.add(layers.Flatten())
-model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(10, activation='softmax'))
-
+#model.add(layers.Dense(16, activation='relu'))
+model.add(layers.Dense(2, activation='softmax'))
+model.summary()
 #checkpoint_path = "/home/paul/computervisionproject/cnn/cp.ckpt"
 #checkpoint_dir = os.path.dirname(checkpoint_path)
 
@@ -183,12 +186,20 @@ model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
-model.fit(ds, epochs=7, steps_per_epoch=35)# callbacks = [cp_callback])
-img_final=tf.expand_dims(load_and_preprocess_image("/home/paul/apple.jpg"), axis=0)
+model.fit(ds, epochs=6, steps_per_epoch=35)# callbacks = [cp_callback])
+img_final=tf.expand_dims(load_and_preprocess_image("/home/paul/banana.jpg"), axis=0)
 prediction = model.predict(img_final)
 for i, logits in enumerate(prediction):
     class_idx = tf.argmax(logits).numpy()
     p = tf.nn.softmax(logits)[class_idx]
     name = label_names[class_idx]
     print("Example {} prediction: {} ({:4.1f}%)".format(i, name, 100*p))
+ #   print("Example {} prediction: {} )".format(i, name,))
 
+
+
+    #import time
+#saved_model_path = "./saved_models/{}".format(int(time.time()))
+
+#tf.keras.experimental.export_saved_model(model, saved_model_path)
+#saved_model_path
