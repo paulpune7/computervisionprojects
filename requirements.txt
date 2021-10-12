@@ -66,7 +66,7 @@ numpy==1.16.4
 oauth==1.0.1
 object-detection==0.1
 olefile==0.45.1
-opencv-python==4.1.0.25
+opencv-python==4.2.0.32
 pandas==0.24.2
 pandocfilters==1.4.2
 parso==0.4.0
