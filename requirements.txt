@@ -117,7 +117,7 @@ tabulate==0.8.3
 tb-nightly==1.14.0a20190603
 tensorboard==1.14.0
 tensorflow-estimator==1.14.0
-tensorflow-gpu==1.14.0
+tensorflow-gpu==2.7.2
 tensorpack==0.9.5
 termcolor==1.1.0
 terminado==0.8.2
